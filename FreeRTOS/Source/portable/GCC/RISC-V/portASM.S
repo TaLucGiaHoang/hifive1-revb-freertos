@@ -71,8 +71,17 @@
 
 /* Check the freertos_risc_v_chip_specific_extensions.h and/or command line
 definitions. */
-#ifndef portasmHAS_CLINT
-	#error freertos_risc_v_chip_specific_extensions.h must define portasmHAS_CLINT to either 1 (CLINT present) or 0 (clint not present).
+#if defined( portasmHAS_CLINT ) && defined( portasmHAS_MTIME )
+	#error The portasmHAS_CLINT constant has been depracted.  Please replace it with portasmHAS_CLINT.  portasmHAS_CLINT and portasmHAS_MTIME cannot both be defined at once.
+#endif
+
+#ifdef portasmHAS_CLINT
+	#warning The portasmHAS_CLINT constant has been depracted.  Please replace it with portasmHAS_CLINT.  For now portasmHAS_MTIME is derived from portasmHAS_CLINT.
+	#define portasmHAS_MTIME portasmHAS_CLINT
+#endif
+
+#ifndef portasmHAS_MTIME
+	#error freertos_risc_v_chip_specific_extensions.h must define portasmHAS_MTIME to either 1 (MTIME clock present) or 0 (MTIME clock not present).
 #endif
 
 #ifndef portasmHANDLE_INTERRUPT
@@ -153,7 +162,7 @@ test_if_asynchronous:
 
 handle_asynchronous:
 
-#if( portasmHAS_CLINT != 0 )
+#if( portasmHAS_MTIME != 0 )
 
 	test_if_mtimer:						/* If there is a CLINT then the mtimer is used to generate the tick interrupt. */
 
@@ -205,7 +214,7 @@ handle_asynchronous:
 		addi t1, t1, 4					/* 0x80000007 + 4 = 0x8000000b == Machine external interrupt. */
 		bne a0, t1, as_yet_unhandled	/* Something as yet unhandled. */
 
-#endif /* portasmHAS_CLINT */
+#endif /* portasmHAS_MTIME */
 
 	load_x sp, xISRStackTop				/* Switch to ISR stack before function call. */
 	jal portasmHANDLE_INTERRUPT			/* Jump to the interrupt handler if there is no CLINT or if there is a CLINT and it has been determined that an external interrupt is pending. */
@@ -226,7 +235,7 @@ is_exception:
 	csrr t0, mcause						/* For viewing in the debugger only. */
 	csrr t1, mepc						/* For viewing in the debugger only */
 	csrr t2, mstatus
-	j is_exception
+	j is_exception						/* No other exceptions handled yet. */
 
 as_yet_unhandled:
 	csrr t0, mcause						/* For viewing in the debugger only. */
@@ -284,7 +293,7 @@ processed_source:
 .func
 xPortStartFirstTask:
 
-#if( portasmHAS_CLINT != 0 )
+#if( portasmHAS_MTIME != 0 )
 	/* If there is a clint then interrupts can branch directly to the FreeRTOS
 	trap handler.  Otherwise the interrupt controller will need to be configured
 	outside of this file. */
@@ -402,7 +411,7 @@ xPortStartFirstTask:
 pxPortInitialiseStack:
 
 	csrr t0, mstatus					/* Obtain current mstatus value. */
-	addi t1, x0, 0x188					/* Generate the value 0x1888, which are the MIE, MPIE and privilege bits to set in mstatus. */
+	addi t1, x0, 0x188					/* Generate the value 0x1880, which are the MPIE and MPP bits to set in mstatus. */
 	slli t1, t1, 4
 	or t0, t0, t1						/* Set MPIE and MPP bits in mstatus value. */
 
