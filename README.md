@@ -67,3 +67,5 @@ OK
 AT+BLEINIT=0-->OK
 AT+CWMODE=0-->OK
 ```
+
+![Image of Demo](demo.jpg)
