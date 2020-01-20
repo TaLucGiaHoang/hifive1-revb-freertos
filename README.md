@@ -11,7 +11,7 @@ Simply blink a LED example. This repository is created to contains just sample F
 
 ## References:
 This is just a clone of FreeRTOS demo for HiFive1 Rev B board
-Refer to [FreeRTOS/Demo/RISC-V_RV32_SiFive_HiFive1_FreedomStudio](https://sourceforge.net/p/freertos/code/HEAD/tree/trunk/) (r2752)
+Refer to [FreeRTOS/Demo/RISC-V_RV32_SiFive_HiFive1_FreedomStudio](https://sourceforge.net/p/freertos/code/HEAD/tree/trunk/) (r2805)
 
 
 ## Build Instructions (for Windows 10)
